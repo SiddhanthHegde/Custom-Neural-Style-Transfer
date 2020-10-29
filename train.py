@@ -36,7 +36,7 @@ class mobNet(nn.Module):
 image_size = 512 #preferred the shape of content image for better look
 transform = transforms.Compose(
     [
-     transforms.Resize((316,474)),# my content image
+     transforms.Resize((316,474)),# shape of used content image
      transforms.ToTensor()
     ]
 )
