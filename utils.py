@@ -1,5 +1,13 @@
 import torch
+import torchvision.transforms as transforms
 from PIL import Image
+
+transform = transforms.Compose(
+    [
+     transforms.Resize((316,474)),# shape of used content image
+     transforms.ToTensor()
+    ]
+)
 
 def load_image(image_name):
     image = Image.open(image_name)
