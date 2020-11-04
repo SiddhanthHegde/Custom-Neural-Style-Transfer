@@ -14,7 +14,7 @@ from torchvision.utils import save_image
 import matplotlib.pyplot as plt
 #%matplotlib inline
 
-#Command line arguments. I wanted to play around with some parms and made them more accessible for me.
+#Command line arguments. 
 arg_parser = argparse.ArgumentParser(
     description="parser for fast-neural-style-training")
     
@@ -60,7 +60,7 @@ class mobNet(nn.Module):
 image_size = 1024 #preferred the shape of content image for better look
 transform = transforms.Compose(
     [
-     transforms.Resize((720,1280)),# shape of used content image
+     transforms.Resize((316,474)),# shape of used content image to retain the shape. Noise image can be rescaled to higher dimensions for better clarity
      transforms.ToTensor()
     ]
 )
