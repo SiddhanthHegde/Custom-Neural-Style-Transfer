@@ -1,4 +1,7 @@
 #imports
+import time
+import os
+import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,7 +12,28 @@ import torchvision.models as models
 from torchvision.utils import save_image
 
 import matplotlib.pyplot as plt
-%matplotlib inline
+#%matplotlib inline
+
+#Command line arguments. I wanted to play around with some parms and made them more accessible for me.
+arg_parser = argparse.ArgumentParser(
+    description="parser for fast-neural-style-training")
+    
+arg_parser.add_argument("--content-img", type=str, required=True,
+                        help="path to content image")
+arg_parser.add_argument("--style-img", type=str, required=True,
+                        help="path to style image")
+arg_parser.add_argument("--output-path", type=str, required=True,
+                        help="path to stylized image"
+                        "containing another folder with all the training images")
+arg_parser.add_argument("--output-name", type=str, default="output.png",
+                        help="name of stylized image")
+arg_parser.add_argument("--step-amount", type=int, default=10000,
+                        help="amount of painting steps (loops, default = 10000)")
+arg_parser.add_argument("--lr", type=float, default=1e-2,
+                        help="learning rate (default = 1e-2")
+
+args = arg_parser.parse_args()
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -33,17 +57,17 @@ class mobNet(nn.Module):
 
         return features
 
-image_size = 512 #preferred the shape of content image for better look
+image_size = 1024 #preferred the shape of content image for better look
 transform = transforms.Compose(
     [
-     transforms.Resize((316,474)),# shape of used content image
+     transforms.Resize((720,1280)),# shape of used content image
      transforms.ToTensor()
     ]
 )
 
 #load images
-content_image = load_image(r'content4.jpg')
-style_image = load_image(r'style2.jpg')
+content_image = load_image(args.content_img)
+style_image = load_image(args.style_img)
 
 #generated image can be a noise
 #generated_image = torch.randn(orignal_image.shape).to(device).requires_grad_(True)
@@ -52,8 +76,8 @@ generated_image = content_image.clone().requires_grad_(True)
 model = mobNet().to(device).eval()
 
 #hyperparameters
-total_steps = 10000
-learning_rate = 0.001
+total_steps = args.step_amount #default = 10000
+learning_rate = args.lr #default = 1e-2
 alpha = 1 #content loss weight
 beta = 0.01 #style loss weight
 optimizer = optim.Adam([generated_image],lr = learning_rate)
@@ -82,16 +106,12 @@ for step in range(total_steps):
     optimizer.step()
 
     if step % 500 == 0:
-        print(total_loss)
+        print(f'{time.ctime()} - tensor(total_loss: {total_loss}, device={device}) steps: {step}/ {total_steps}')
         steps.append(step)
         total_losses.append(float(total_loss))
 
-save_image(generated_image, 'generated.jpg')
+save_model_path = os.path.join(args.output_path, args.output_name)
+save_image(generated_image, save_model_path)
 
 plt.figure(figsize=(10,8))
 plt.plot(steps,total_losses)
-
-
-
-
-
