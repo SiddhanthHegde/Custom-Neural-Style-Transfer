@@ -57,10 +57,10 @@ class mobNet(nn.Module):
 
         return features
 
-image_size = 1024 #preferred the shape of content image for better look
+image_width, image_height = 316, 474#preferred the shape of content image for better look
 transform = transforms.Compose(
     [
-     transforms.Resize((316,474)),# shape of used content image to retain the shape. Noise image can be rescaled to higher dimensions for better clarity
+     transforms.Resize((image_width,image_height)),# shape of used content image to retain the shape. Noise image can be rescaled to higher dimensions for better clarity
      transforms.ToTensor()
     ]
 )
@@ -83,6 +83,7 @@ beta = 0.01 #style loss weight
 optimizer = optim.Adam([generated_image],lr = learning_rate)
 steps = []
 total_losses = []
+print_at_step = 500
 
 for step in range(total_steps):
     generated_features = model(generated_image)
@@ -105,7 +106,7 @@ for step in range(total_steps):
     total_loss.backward()
     optimizer.step()
 
-    if step % 500 == 0:
+    if step % print_at_step == 0:
         print(f'{time.ctime()} - tensor(total_loss: {total_loss}, device={device}) steps: {step}/ {total_steps}')
         steps.append(step)
         total_losses.append(float(total_loss))
